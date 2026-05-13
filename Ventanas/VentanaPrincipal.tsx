@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
     StyleSheet,
     Text,
@@ -10,7 +10,9 @@ import {
     Animated,
     Easing,
     FlatList,
-    Image
+    Image,
+    Alert,
+    NativeModules
 } from 'react-native';
 import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 
@@ -83,7 +85,42 @@ export default function VentanaPrincipal() {
         inputRange: [0, 1],
         outputRange: ['0deg', '90deg'],
     });
+
+    const [datos, setDatos] = useState([]);
+
     const [isGrid, setIsGrid] = useState(true);
+
+    useEffect(() => {
+        CargarDatos();
+
+
+    }, []);
+
+    const { VentanaPrincipal } = NativeModules;
+
+    const CargarDatos = async () => {
+        try {
+            const CargarDatos = await VentanaPrincipal.CargarDatos(
+                idUsuario,
+
+            );
+            console.log(CargarDatos);
+            setDatos(JSON.parse(CargarDatos));
+            Alert.alert("Éxito", "Datos cargados correctamente");
+        } catch (error: any) {
+            // Aquí recibes el 'promise.reject' que configuramos en Kotlin
+            Alert.alert("Error", error.message);
+        }
+    };
+
+
+
+
+
+
+
+
+
     const MOCK_DATA = [
         { id: '1', nombre: 'IMG_20260115_124623', uri: 'https://picsum.photos/200/300?sig=1' },
         { id: '2', nombre: 'IMG_20260115_124723', uri: 'https://picsum.photos/200/300?sig=2' },
@@ -96,17 +133,22 @@ export default function VentanaPrincipal() {
     // Renderizador de cada tarjeta
     const renderItem = ({ item }: { item: any }) => {
         return (
-            <View style={isGrid ? styles.gridItem : styles.listItem}>
-                <Image
-                    source={{ uri: item.uri }}
-                    style={isGrid ? styles.gridImage : styles.listImage}
-                />
-                <View style={styles.textContainer}>
-                    <Text style={styles.fileName} numberOfLines={2}>
-                        {item.nombre}.jpg
-                    </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('GenerarPass', { item: item })}
+                style={isGrid ? styles.gridItem : styles.listItem}>
+
+
+                <View style={isGrid ? styles.gridItem : styles.listItem}>
+                    <Image
+                        source={item.rutaImagen ? { uri: item.rutaImagen } : require('../assets/favicon.png')}
+                        style={isGrid ? styles.gridImage : styles.listImage}
+                    />
+                    <View style={styles.textContainer}>
+                        <Text style={styles.fileName} numberOfLines={2}>
+                            {item.titulo}
+                        </Text>
+                    </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
     return (
@@ -126,7 +168,7 @@ export default function VentanaPrincipal() {
 
             {/* La lista que cambia de forma */}
             <FlatList
-                data={MOCK_DATA}
+                data={datos}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
                 // IMPORTANTE: Cambiar la 'key' según 'isGrid' para que React refresque las columnas

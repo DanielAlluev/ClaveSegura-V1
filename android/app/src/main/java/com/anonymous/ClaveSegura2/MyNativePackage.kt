@@ -13,6 +13,7 @@ class MyNativePackage : ReactPackage {
             LoginClave(reactContext) as NativeModule,
             CrearCuenta(reactContext) as NativeModule,
             RegistrarPass(reactContext) as NativeModule,
+            VentanaPrincipal(reactContext) as NativeModule,
             
         )
     }

@@ -18,6 +18,7 @@ import CrearCuenta from './Crear_Cuenta';
 import VentanaPrincipal from './VentanaPrincipal';
 import Prueba from './Prueba';
 import RegistroPass from './RegistroPass';
+import GenerarPass from './GenerarPass';
 
 // 1. CREAMOS EL STACK (La "hoja de ruta")
 const Stack = createNativeStackNavigator();
@@ -51,7 +52,7 @@ function LoginScreen() {
     } catch (error: any) {
       // Aquí recibes el 'promise.reject' que configuramos en Kotlin
       Alert.alert("Error", error.message);
-
+      navigation.navigate('GenerarPass');
     }
   };
 
@@ -116,6 +117,7 @@ export default function App() {
         <Stack.Screen name="CrearCuenta" component={CrearCuenta} />
         <Stack.Screen name="Prueba" component={Prueba} />
         <Stack.Screen name="RegistroPass" component={RegistroPass} />
+        <Stack.Screen name="GenerarPass" component={GenerarPass} />
       </Stack.Navigator>
     </NavigationContainer>
   );

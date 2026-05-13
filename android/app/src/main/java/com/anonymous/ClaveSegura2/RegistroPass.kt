@@ -54,7 +54,7 @@ class RegistrarPass (reactContext: ReactApplicationContext) : ReactContextBaseJa
             val UserEncript=KeyStoreUtil.encrypt(UsuarioCredencial)
             val PassEncript=KeyStoreUtil.encrypt(PassCredencial)
             // 2. Creación del objeto (Cuidado: Usuario, no Usuarios)
-            val u = AplicaccionPass(titulo,urlpag,AppName,UsuarioCredencial,PassCredencial,Notas)
+            val u = AplicaccionPass(titulo,urlpag,AppNameEncript ?: "", UserEncript ?: "", PassEncript ?: "",Notas)
 
             // 3. JSON
             val json = """
