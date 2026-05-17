@@ -1,5 +1,6 @@
 package com.anonymous.ClaveSegura2
 import com.anonymous.ClaveSegura2.Modelos.AplicaccionPass
+import androidx.activity.ComponentActivity
 import com.anonymous.ClaveSegura2.Utilidades.KeyStoreUtil
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -16,11 +17,16 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
 
 
 
 
 class RegistrarPass (reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+    
     override fun getName(): String{
        return "RegistrarPass"
     }
@@ -99,6 +105,30 @@ class RegistrarPass (reactContext: ReactApplicationContext) : ReactContextBaseJa
             promise.reject("ENCRYPTION_ERROR", "Error al procesar datos: ${e.message}")
         }
 
-
     }
+   @ReactMethod
+    fun abrirGaleria(promise: Promise) {
+    val activity = reactApplicationContext.currentActivity as? MainActivity
+    
+    if (activity == null) {
+        promise.reject("ERROR", "Activity nula")
+        return
+    }
+
+    // Escuchamos el resultado que enviará la MainActivity
+    MainActivity.onFotoResult = { uri ->
+        if (uri != null) {
+            promise.resolve(uri.toString())
+        } else {
+            promise.reject("CANCELADO", "No se seleccionó imagen")
+        }
+        // Limpiamos el callback para evitar fugas de memoria
+        MainActivity.onFotoResult = null
+    }
+
+    // Ejecutamos en el hilo de la UI
+    activity.runOnUiThread {
+        activity.abrirElSelector()
+    }
+}
 }

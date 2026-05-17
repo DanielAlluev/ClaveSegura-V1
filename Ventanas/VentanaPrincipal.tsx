@@ -21,7 +21,7 @@ import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 
-import RegistroPass from './RegistroPass';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -133,7 +133,7 @@ export default function VentanaPrincipal() {
     // Renderizador de cada tarjeta
     const renderItem = ({ item }: { item: any }) => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('GenerarPass', { item: item })}
+            <TouchableOpacity onPress={() => navigation.navigate('EditarPass', { item: item })}
                 style={isGrid ? styles.gridItem : styles.listItem}>
 
 
@@ -260,6 +260,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingHorizontal: 10,
+
     },
     // Estilos modo GRID (Cuadrícula)
     gridItem: {
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
     },
     gridImage: {
         width: '100%',
-        height: 120,
+        height: 150,
         borderRadius: 4,
         backgroundColor: '#2c3e50',
     },
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     fileName: {
-        color: 'white',
+        color: 'black',
         fontSize: 12,
     },
 

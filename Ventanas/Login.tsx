@@ -19,6 +19,7 @@ import VentanaPrincipal from './VentanaPrincipal';
 import Prueba from './Prueba';
 import RegistroPass from './RegistroPass';
 import GenerarPass from './GenerarPass';
+import EditarPass from './EditarPass';
 
 // 1. CREAMOS EL STACK (La "hoja de ruta")
 const Stack = createNativeStackNavigator();
@@ -118,6 +119,7 @@ export default function App() {
         <Stack.Screen name="Prueba" component={Prueba} />
         <Stack.Screen name="RegistroPass" component={RegistroPass} />
         <Stack.Screen name="GenerarPass" component={GenerarPass} />
+        <Stack.Screen name="EditarPass" component={EditarPass} />
       </Stack.Navigator>
     </NavigationContainer>
   );
