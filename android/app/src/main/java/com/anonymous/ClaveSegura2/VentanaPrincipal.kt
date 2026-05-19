@@ -33,7 +33,7 @@ class VentanaPrincipal (reactContext: ReactApplicationContext) : ReactContextBas
           try {
             // Revisa que esta URL sea accesible desde el móvil
             val request = Request.Builder()
-                .url("http://192.168.1.34:30005/api/Credenciales?idUsuario=$idUsuario")
+                .url("http://100.74.88.91:30005/api/Credenciales?idUsuario=$idUsuario")
                 .get()
                 .build()
 

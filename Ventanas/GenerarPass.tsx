@@ -8,21 +8,25 @@ import {
     ScrollView,
     SafeAreaView,
     TextInput,
+    ImageBackground,
+    NativeModules,
+    Alert,
+
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 
 const C = {
-    bg: '#0f1117',
-    card: '#1a1d27',
-    cardInner: '#13151e',
+    bg: 'transparent',
+    card: 'transparent',
+    cardInner: '#121f5aff',
     text: '#ffffff',
-    sub: '#8890a4',
-    accent: '#4f8ef7',
+    sub: '#080808ff',
+    accent: '#0d2652ff',
     border: '#262a38',
     teal: '#00e5c3',
     red: '#ff4d4d',
 };
-
+ 
 export default function GeneratorScreen() {
 
     const [length, setLength] = useState(12);
@@ -33,7 +37,7 @@ export default function GeneratorScreen() {
         numbers: { on: true, min: 1 },
         symbols: { on: false, min: 1 },
     });
-
+   
     const toggleOption = (key: keyof typeof options) => {
         setOptions(prev => ({
             ...prev,
@@ -56,25 +60,64 @@ export default function GeneratorScreen() {
     const exceeded = totalMin > length;
 
     const ITEMS = [
-        { icon: 'A↑', label: 'Uppercase', sub: 'A-Z', key: 'uppercase' },
-        { icon: 'a↓', label: 'Lowercase', sub: 'a-z', key: 'lowercase' },
-        { icon: '123', label: 'Numbers', sub: '0-9', key: 'numbers' },
-        { icon: '@', label: 'Symbols', sub: '!@#', key: 'symbols' },
+        { icon: 'A↑', label: 'Mayusculas', sub: 'A-Z', key: 'uppercase' },
+        { icon: 'a↓', label: 'Minusculas', sub: 'a-z', key: 'lowercase' },
+        { icon: '1', label: 'Numeros', sub: '0-9', key: 'numbers' },
+        { icon: '@', label: 'Simbolos', sub: '!@#', key: 'symbols' },
     ] as const;
+    const FondoLogin = require('../assets/FondoLogin.jpeg');
+    const { GenerarPass } = NativeModules;
+    const [password,  setPassword]  = useState('');
+const [fortaleza, setFortaleza] = useState('');
+    const GenerarPasse = async () => {
 
+
+
+      
+    try {
+      const Insertar = await GenerarPass.generarContrasena(
+        length,               
+        options.uppercase.on,options.uppercase.min, 
+        options.lowercase.on,options.lowercase.min, 
+        options.numbers.on,options.numbers.min,   
+        options.symbols.on,options.symbols.min
+      );
+      Alert.alert("Éxito", "Login Correcto");
+      setPassword(Insertar.contrasena);
+      setFortaleza(Insertar.fortaleza);
+      
+    } catch (error: any) {
+      // Aquí recibes el 'promise.reject' que configuramos en Kotlin
+      Alert.alert("Error", error.message);
+      
+    }
+  };
+
+   const BarraProg: Record<string, { color: string; width: string }> = {
+        'Muy débil':  { color: '#ff4d4d', width: '15%'  },
+        'Débil':      { color: '#ff4d4d', width: '35%'  },
+        'Media':      { color: '#f5a623', width: '55%'  },
+        'Fuerte':     { color: '#00e5c3', width: '80%'  },
+        'Muy fuerte': { color: '#00e5c3', width: '100%' },
+    };
+    const fort = BarraProg[fortaleza] ?? null;
     return (
-        <SafeAreaView style={styles.safe}>
-            <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
+        <ImageBackground
+            source={FondoLogin} 
+            style={styles.Fondo}
+            resizeMode="cover"
+        >
+            <ScrollView style={styles.container} contentContainerStyle={styles.content}>
                 {/* Header */}
-                <Text style={styles.title}>Generator</Text>
-                <Text style={styles.subtitle}>Create cryptographically strong passwords</Text>
+                <Text style={styles.title}>Generador de Contraseñas</Text>
+
 
                 {/* Password Display Card */}
                 <View style={styles.card}>
-                    <Text style={styles.cardLabel}>GENERATED PASSWORD</Text>
+
                     <View style={styles.passwordBox}>
-                        <Text style={styles.passwordText}>Xy9#mP2$Lq</Text>
+                        <Text style={styles.passwordText}>{password ? password : '· · · · · · · · ·'}</Text>
                     </View>
                     <TouchableOpacity style={styles.copyButton}>
                         <Text style={styles.copyIcon}>⧉</Text>
@@ -83,21 +126,25 @@ export default function GeneratorScreen() {
                     <View style={styles.divider} />
                     <View style={styles.strengthRow}>
                         <Text style={styles.strengthLabel}>Security</Text>
-                        <Text style={styles.strengthValue}>Very Strong</Text>
+                        <Text style={styles.strengthValue}>{fortaleza ? fortaleza : '—'}</Text>
                     </View>
-                    <View style={styles.progressBg}>
-                        <View style={[styles.progressFill, { width: '100%', backgroundColor: C.teal }]} />
+                   <View style={styles.progressBg}>
+                        <View style={[styles.progressFill, {
+                            width: (fort?.width ?? 0) as any,
+                            backgroundColor: fort?.color ?? 'transparent',
+                        }]} />
                     </View>
                 </View>
 
                 {/* Options Card */}
                 <View style={styles.card}>
-
                     {/* Length */}
                     <View style={styles.lengthRow}>
                         <Text style={styles.optionLabel}>Length</Text>
-                        <View style={styles.lengthBadge}>
-                            <Text style={styles.lengthBadgeText}>{length}</Text>
+                        <View style={[styles.lengthBadge, exceeded && styles.lengthBadgeWarning]}>
+                            <Text style={styles.lengthBadgeText}>
+                                {exceeded ? `⚠️ Mín: ${totalMin}` : length}
+                            </Text>
                         </View>
                     </View>
                     <Slider
@@ -116,80 +163,83 @@ export default function GeneratorScreen() {
                         <Text style={styles.rangeText}>32</Text>
                     </View>
 
-                    {/* Aviso si se pasan los mínimos */}
-                    {exceeded && (
-                        <View style={styles.warningBox}>
-                            <Text style={styles.warningText}>
-                                ⚠️ Los mínimos ({totalMin}) superan la longitud ({length})
-                            </Text>
-                        </View>
-                    )}
 
-                    {/* Toggles */}
-                    {ITEMS.map((item) => {
-                        const opt = options[item.key];
-                        return (
-                            <View key={item.label}>
-                                <View style={styles.toggleRow}>
-                                    <View style={styles.toggleIcon}>
-                                        <Text style={styles.toggleIconText}>{item.icon}</Text>
-                                    </View>
-                                    <View style={styles.toggleInfo}>
-                                        <Text style={styles.toggleLabel}>{item.label}</Text>
-                                        <Text style={styles.toggleSub}>{item.sub}</Text>
-                                    </View>
-                                    <Switch
-                                        value={opt.on}
-                                        onValueChange={() => toggleOption(item.key)}
-                                        trackColor={{ false: C.border, true: C.accent }}
-                                        thumbColor={C.text}
-                                    />
-                                </View>
+                    {ITEMS.reduce((rows, _, index) => {
+                        if (index % 2 === 0) rows.push([ITEMS[index], ITEMS[index + 1]]);
+                        return rows;
+                    }, []).map((pair, rowIndex) => (
+                        <View key={`row-${rowIndex}`} style={styles.gridRow}>
+                            {pair.map((item) => {
+                                if (!item) return null;
+                                const opt = options[item.key];
 
-                                {/* Input de mínimo — solo visible si el switch está ON */}
-                                {opt.on && (
-                                    <View style={styles.minRow}>
-                                        <Text style={styles.minLabel}>Mínimo de {item.label.toLowerCase()}</Text>
-                                        <View style={styles.minControls}>
-                                            <TouchableOpacity
-                                                style={styles.minBtn}
-                                                onPress={() => setMin(item.key, String(Math.max(0, opt.min - 1)))}
-                                            >
-                                                <Text style={styles.minBtnText}>−</Text>
-                                            </TouchableOpacity>
-                                            <TextInput
-                                                style={styles.minInput}
-                                                value={String(opt.min)}
-                                                onChangeText={(val) => setMin(item.key, val)}
-                                                keyboardType="numeric"
-                                                maxLength={2}
+                                return (
+                                    <View key={item.label} style={styles.gridColumn}>
+                                        {/* Switch e Info */}
+                                        <View style={styles.toggleRowInline}>
+                                            <View style={styles.toggleInfoInline}>
+                                                <Text style={styles.toggleIconTextInline}>{item.icon}</Text>
+                                                <Text
+                                                    style={styles.toggleLabelInline}
+                                                    numberOfLines={1}
+                                                    ellipsizeMode="tail"
+                                                >
+                                                    {item.label}
+                                                </Text>
+                                            </View>
+                                            <Switch
+                                                value={opt.on}
+                                                onValueChange={() => toggleOption(item.key)}
+                                                trackColor={{ false: C.border, true: C.accent }}
+                                                thumbColor={C.text}
+                                                style={{ transform: [{ scaleX: 0.75 }, { scaleY: 0.75 }] }}
                                             />
-                                            <TouchableOpacity
-                                                style={styles.minBtn}
-                                                onPress={() => setMin(item.key, String(opt.min + 1))}
-                                            >
-                                                <Text style={styles.minBtnText}>+</Text>
-                                            </TouchableOpacity>
                                         </View>
+
+                                        {/* Mínimos */}
+                                        {opt.on && (
+                                            <View style={styles.minContainerInline}>
+                                                <Text style={styles.minLabelInline}>Min:</Text>
+                                                <View style={styles.minControlsInline}>
+                                                    <TouchableOpacity
+                                                        style={styles.minBtnInline}
+                                                        onPress={() => setMin(item.key, String(Math.max(0, opt.min - 1)))}
+                                                    >
+                                                        <Text style={styles.minBtnTextInline}>−</Text>
+                                                    </TouchableOpacity>
+                                                    <TextInput
+                                                        style={styles.minInputInline}
+                                                        value={String(opt.min)}
+                                                        onChangeText={(val) => setMin(item.key, val)}
+                                                        keyboardType="numeric"
+                                                        maxLength={2}
+                                                    />
+                                                    <TouchableOpacity
+                                                        style={styles.minBtnInline}
+                                                        onPress={() => setMin(item.key, String(opt.min + 1))}
+                                                    >
+                                                        <Text style={styles.minBtnTextInline}>+</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        )}
                                     </View>
-                                )}
+                                );
+                            })}
+                        </View>
+                    ))}
 
-                            </View>
-                        );
-                    })}
                 </View>
-
+                <View style={styles.footer}>
+                    <TouchableOpacity style={[styles.generateButton, exceeded && styles.generateButtonDisabled]} onPress={GenerarPasse}>
+                        <Text style={styles.generateIcon}>↻</Text>
+                        <Text style={styles.generateText}>Generate Password</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
-
-            {/* Generate Button */}
-            <View style={styles.footer}>
-                <TouchableOpacity style={[styles.generateButton, exceeded && styles.generateButtonDisabled]}>
-                    <Text style={styles.generateIcon}>↻</Text>
-                    <Text style={styles.generateText}>Generate Password</Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+        </ImageBackground>
     );
+
 }
 
 const styles = StyleSheet.create({
@@ -204,11 +254,11 @@ const styles = StyleSheet.create({
     cardLabel: { fontSize: 11, color: C.sub, letterSpacing: 1.5, textAlign: 'center', marginBottom: 14 },
 
     passwordBox: { backgroundColor: C.cardInner, borderRadius: 10, padding: 18, alignItems: 'center', marginBottom: 14 },
-    passwordText: { fontSize: 22, color: C.text, fontFamily: 'monospace', letterSpacing: 2 },
+    passwordText: { fontSize: 18, color: C.text, fontFamily: 'monospace', letterSpacing: 2 },
 
     copyButton: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-        backgroundColor: C.cardInner, borderRadius: 24, paddingVertical: 12, gap: 8
+        backgroundColor: C.cardInner, borderRadius: 20, paddingVertical: 6, gap: 4
     },
     copyIcon: { fontSize: 16, color: C.text },
     copyText: { fontSize: 15, color: C.text, fontWeight: '500' },
@@ -265,7 +315,7 @@ const styles = StyleSheet.create({
     },
 
     footer: {
-        position: 'absolute', bottom: 0, left: 0, right: 0,
+        position: 'absolute', bottom: 50, left: 0, right: 0,
         padding: 20, backgroundColor: C.bg
     },
     generateButton: {
@@ -275,4 +325,83 @@ const styles = StyleSheet.create({
     generateButtonDisabled: { backgroundColor: '#2a3a5a', opacity: 0.6 },
     generateIcon: { fontSize: 18, color: C.text },
     generateText: { fontSize: 16, color: C.text, fontWeight: '700' },
+    Fondo: { flex: 1 },
+    gridRow: {
+        flexDirection: 'row',
+        justifyContent: 'center', // Cambiado de 'space-between' a 'center' para que se unan en el medio
+        marginBottom: 12,
+        gap: 0, // Espacio fijo y pequeño entre la columna izquierda y derecha
+        width: '105%',
+    },
+    gridColumn: {
+        flex: 1,
+        maxWidth: '148%', // Evita que se estiren de más hacia los lados
+
+        paddingVertical: 8,
+        paddingHorizontal: 2, // Padding interno más ajustado para aprovechar el ancho
+        borderRadius: 8,
+        overflow: 'hidden',
+    },
+    toggleRowInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    toggleInfoInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        marginRight: 2, // Espacio mínimo de seguridad antes del Switch
+        overflow: 'hidden',
+    },
+    toggleIconTextInline: {
+        fontSize: 14,
+        marginRight: 3,
+        color: '#0c0c0cff',
+    },
+    toggleLabelInline: {
+        fontSize: 12, // Tamaño ideal para que nombres como "Uppercase" no se tapen
+        fontWeight: '500',
+        color: '#030303ff', // Ajusta según tu paleta de colores
+        flex: 1,
+    },
+    minContainerInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 6,
+        borderTopWidth: 2,
+        borderTopColor: 'rgba(255,255,255,0.1)',
+        paddingTop: 4,
+    },
+    minLabelInline: {
+        fontSize: 11,
+        color: '#0f0f0fff',
+    },
+    minControlsInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    minBtnInline: {
+        width: 25, // Más compacto para que no empuje los márgenes externos
+        height: 25,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 4,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    minBtnTextInline: {
+        fontSize: 11,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    minInputInline: {
+        width: 20,
+        textAlign: 'center',
+        fontSize: 11,
+        padding: 0,
+        marginHorizontal: 2,
+        color: '#070707ff',
+    },
 });

@@ -38,8 +38,8 @@ export default function App() {
     const UsuarioCredencialRef = useRef<TextInput>(null);
     const PassCredencialRef = useRef<TextInput>(null);
     const NotasRef = useRef<TextInput>(null);
-
-    const handleRegistro = async () => {
+    const [imagenUri, setImagenUri] = useState(null);
+    const InsertarPass = async () => {
         try {
             // Llamamos al método authenticate de tu archivo Kotlin
             const result = await RegistrarPass.authenticate(
@@ -49,7 +49,8 @@ export default function App() {
                 AppName,
                 UsuarioCredencial,
                 PassCredencial,
-                Notas
+                Notas,
+                imagenUri
             );
             const Insertar = await RegistrarPass.insertar(
                 idUsuario,
@@ -58,7 +59,8 @@ export default function App() {
                 AppName,
                 UsuarioCredencial,
                 PassCredencial,
-                Notas
+                Notas,
+                imagenUri
             );
             Alert.alert("Éxito", "Usuario registrado correctamente");
         } catch (error: any) {
@@ -66,6 +68,20 @@ export default function App() {
             Alert.alert("Error", error.message);
         }
     };
+    const AbrirGaleria = async () => {
+        try {
+            // Llamamos al método authenticate de tu archivo Kotlin
+            const uri = await RegistrarPass.abrirGaleria();
+            Alert.alert("¡Llegó la URI!", uri ? uri : "La URI vino vacía");
+            if (uri) {
+                setImagenUri(uri);
+            }
+        } catch (error: any) {
+            // Aquí recibes el 'promise.reject' que configuramos en Kotlin
+            Alert.alert("Error", error.message);
+        }
+    };
+
 
     const Logo = require('../assets/Logo.jpeg');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -76,6 +92,21 @@ export default function App() {
 
 
                 <View style={styles.ContenedorCampos}>
+                    <TouchableOpacity
+                        style={styles.botonFoto}
+                        onPress={() => AbrirGaleria()}
+                    >
+                        {imagenUri ? (
+                            /* Si hay imagen, la mostramos */
+                            <Image
+                                source={{ uri: imagenUri }}
+                                style={{ width: 200, height: 200, backgroundColor: 'transparent', resizeMode: 'stretch' }}
+                            />
+                        ) : (
+                            /* Si no hay imagen, mostramos el texto "+" */
+                            <Text >+</Text>
+                        )}
+                    </TouchableOpacity>
                     <TextInput
                         style={styles.Campos}
                         placeholder="Titulo"
@@ -155,7 +186,7 @@ export default function App() {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={handleRegistro}>
+                    <TouchableOpacity onPress={InsertarPass}>
                         <Text style={styles.btnPrimary}>Crear Cuenta</Text>
                     </TouchableOpacity>
                 </View>
@@ -183,12 +214,27 @@ const styles = StyleSheet.create({
         top: 285,            // Ajusta esto según la altura de tu input para centrarlo
         zIndex: 1,          // Asegura que esté por encima del input para poder tocarlo
     },
+    botonFoto: {
+        width: 200,
+        height: 200,
+        alignSelf: 'center',
+        marginBottom: 20,
+
+        // 👇 Propiedades del borde
+        borderWidth: 2,           // El grosor del borde
+        borderColor: '#000000',    // El color del borde (puedes cambiar el hex)
+        borderRadius: 0,          // Forzar a que las esquinas sean rectas (opcional)
+
+        // 👇 Para centrar el signo "+" dentro del cuadrado
+        justifyContent: 'center',
+        alignItems: 'center',        // Asegura que esté por encima del input para poder tocarlo
+    },
     Contenedor: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingHorizontal: 50,
-        marginTop: '20%'
+        marginTop: '15%'
     },
     Cabecera: {
         fontSize: 26,
@@ -223,12 +269,13 @@ const styles = StyleSheet.create({
     buttonContainer: {
         alignItems: 'center',
         gap: 100,
-        marginTop: 230,
+        marginTop: 40,
+
     },
     btnPrimary: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#082143'
+        color: '#f3f4f5ff'
     },
 
 });

@@ -37,7 +37,7 @@ private var idUsuarioGuardado: String? = null
         // Asumiendo que KeyStoreUtil está correctamente implementado en tu proyecto
        val passEncry = EncriptacionAes.encrypt(pass)
 
-        val urlParametros = "http://192.168.1.34:30005/api/Usuarios/Login".toHttpUrlOrNull()
+        val urlParametros = "http://100.74.88.91/:30005/api/Usuarios/Login".toHttpUrlOrNull()
             ?.newBuilder()
             ?.addQueryParameter("usuario", user)
             ?.addQueryParameter("pass", passEncry)

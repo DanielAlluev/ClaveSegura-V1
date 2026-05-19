@@ -14,6 +14,7 @@ class MyNativePackage : ReactPackage {
             CrearCuenta(reactContext) as NativeModule,
             RegistrarPass(reactContext) as NativeModule,
             VentanaPrincipal(reactContext) as NativeModule,
+            GenerarPass(reactContext) as NativeModule,
             
         )
     }

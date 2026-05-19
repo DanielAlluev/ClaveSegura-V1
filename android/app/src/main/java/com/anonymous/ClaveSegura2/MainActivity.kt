@@ -7,10 +7,40 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
-
+import android.net.Uri // <-- Añadir
+import androidx.activity.result.contract.ActivityResultContracts // <-- Añadir
+import androidx.activity.result.PickVisualMediaRequest
 import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
+
+
+  
+
+  companion object {
+      // Declaramos el tipo de forma muy clara para que Kotlin no se pierda
+      var onFotoResult: ((android.net.Uri?) -> Unit)? = null
+      const val GALERIA_REQUEST_CODE = 1001
+  }
+
+  fun abrirElSelector() {
+      val intent = android.content.Intent(android.content.Intent.ACTION_PICK)
+      intent.type = "image/*"
+      startActivityForResult(intent, GALERIA_REQUEST_CODE)
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+      super.onActivityResult(requestCode, resultCode, data)
+      
+      if (requestCode == GALERIA_REQUEST_CODE && resultCode == android.app.Activity.RESULT_OK) {
+          val uriSeleccionada = data?.data
+          // 2. Usamos la variable del companion object
+          onFotoResult?.invoke(uriSeleccionada)
+      } else if (resultCode == android.app.Activity.RESULT_CANCELED) {
+          onFotoResult?.invoke(null)
+      }
+  }
+  
   override fun onCreate(savedInstanceState: Bundle?) {
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
@@ -19,6 +49,8 @@ class MainActivity : ReactActivity() {
     super.onCreate(null)
   }
 
+
+ 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.
