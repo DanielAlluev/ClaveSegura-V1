@@ -133,7 +133,11 @@ export default function VentanaPrincipal() {
     // Renderizador de cada tarjeta
     const renderItem = ({ item }: { item: any }) => {
         return (
+<<<<<<< HEAD
             <TouchableOpacity onPress={() => navigation.navigate('EditarPass', { datos: item })}
+=======
+            <TouchableOpacity onPress={() => navigation.navigate('EditarPass', { item: item })}
+>>>>>>> 93f70aeffb0322dcb5d7646dd845c277c5143fe4
                 style={isGrid ? styles.gridItem : styles.listItem}>
 
 

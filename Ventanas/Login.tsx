@@ -20,7 +20,10 @@ import Prueba from './Prueba';
 import RegistroPass from './RegistroPass';
 import GenerarPass from './GenerarPass';
 import EditarPass from './EditarPass';
+<<<<<<< HEAD
 
+=======
+>>>>>>> 93f70aeffb0322dcb5d7646dd845c277c5143fe4
 
 // 1. CREAMOS EL STACK (La "hoja de ruta")
 const Stack = createNativeStackNavigator();

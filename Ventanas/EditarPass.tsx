@@ -63,7 +63,7 @@ export default function App() {
                 Notas
             );
             const Insertar = await RegistrarPass.insertar(
-                item.id,
+                datos.id,
                 titulo,
                 urlpag,
                 AppName,
